@@ -1,0 +1,24 @@
+{
+  "name": "boxedit",
+  "version": "0.1.0",
+  "description": "A web-based editor for Tesseract box files",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/danvk/boxedit.git"
+  },
+  "keywords": [
+    "ocr",
+    "tesseract",
+    "box"
+  ],
+  "author": "Dan Vanderkam",
+  "license": "Apache2",
+  "bugs": {
+    "url": "https://github.com/danvk/boxedit/issues"
+  },
+  "homepage": "https://github.com/danvk/boxedit"
+}
