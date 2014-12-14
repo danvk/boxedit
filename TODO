@@ -10,3 +10,5 @@ Optional:
 - Add a keyboard shortcut for split N ways (alt-2 = split 2)
 - Add a delete button
 - Bug where all letters go to the bottom in Safari (NaN issue?)
+- Indicate what the file names are when loaded via drag/drop
+- Add a "merge" button—if nothing else, it's "undo split".
