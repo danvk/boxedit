@@ -1,7 +1,6 @@
 function render(el) {
   var component = <Root />;
   return React.render(component, el);
-  // return component;
 }
 
 var Root = React.createClass({
@@ -14,6 +13,15 @@ var Root = React.createClass({
     selectedBoxIndex: React.PropTypes.number
   },
   */
+  getInitialState: function() {
+    return {
+      boxData: '',
+      // 1x1 transparent gif
+      imageDataUri: 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==',
+      lettersVisible: true,
+      selectedBox: null
+    }
+  },
   handleImage: function(imageDataUri) {
     var im = new Image();
     im.src = imageDataUri;
@@ -24,15 +32,6 @@ var Root = React.createClass({
   },
   handleBox: function(boxData) {
     this.setState({boxData});
-  },
-  getInitialState: function() {
-    return {
-      boxData: '',
-      // 1x1 transparent gif
-      imageDataUri: 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==',
-      lettersVisible: true,
-      selectedBox: null
-    }
   },
   handleLettersVisibleChanged: function(visible) {
     this.setState({lettersVisible: visible});
@@ -46,10 +45,18 @@ var Root = React.createClass({
       selectedBoxIndex: lineIndex + 1
     });
   },
+  handleSplit: function(numWays) {
+    this.setState({
+      boxData: splitLine(this.state.boxData,
+                         this.state.selectedBoxIndex,
+                         numWays)
+    });
+  },
   render: function() {
     return (
       <div>
         <FileUpload {...this.state}
+                    onSplit={this.handleSplit}
                     onChangeImage={this.handleImage}
                     onChangeBox={this.handleBox}
                     onChangeLettersVisible={this.handleLettersVisibleChanged} />
@@ -85,13 +92,29 @@ var FileUpload = React.createClass({
   handleLettersVisibleChanged: function() {
     this.props.onChangeLettersVisible(this.refs.check.getDOMNode().checked);
   },
+  handleSplit: function(e) {
+    this.props.onSplit(Number(e.target.value));
+  },
   render: function() {
+    var splitter;
+    if (this.props.selectedBoxIndex !== null) {
+      splitter = (
+        <select value="none" onChange={this.handleSplit}>
+          <option value="none">Split</option>
+          <option value="2">2 ways</option>
+          <option value="3">3 ways</option>
+          <option value="4">4 ways</option>
+          <option value="5">5 ways</option>
+        </select>
+      );
+    }
     return (
       <div className='upload'>
         Drag a .box file here: <DropZone onDrop={this.handleNewBox} />
         And an image file here: <DropZone onDrop={this.handleNewImage} />
         <input ref="check" type="checkbox" checked={this.props.lettersVisible} onChange={this.handleLettersVisibleChanged} id="letters-visible" /><label htmlFor="letters-visible">
           Show letters</label>
+        {splitter}
       </div>
     );
   }
@@ -158,16 +181,7 @@ var TextView = React.createClass({
 var ImageView = React.createClass({
   makeBoxes: function(text) {
     if (!text || text.length == 0) return [];
-    return this.props.boxData.split('\n').map(line => {
-      var parts = line.split(' ');
-      return {
-        letter: parts[0],
-        left: parseInt(parts[1], 0),
-        top: parseInt(parts[2], 0),
-        right: parseInt(parts[3], 0),
-        bottom: parseInt(parts[4], 0)
-      }
-    });
+    return text.split('\n').map(parseBoxLine);
   },
   transform: function(boxesImageCoords) {
     var height = this.props.imageHeight ||
