@@ -1,4 +1,3 @@
-- Editing <textarea> updates rectangles
 - Selecting box rectangle sets focus in <textarea>
 - Moving cursor in <textarea> sets selected box
 - Selected box scrolls into view

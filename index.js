@@ -96,6 +96,7 @@ var DropZone = React.createClass({
 
 var TextView = React.createClass({
   handleChange: function() {
+    this.props.onChangeBox(this.refs.textbox.getDOMNode().value);
   },
   render: function() {
     return (
