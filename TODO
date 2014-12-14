@@ -1,0 +1,9 @@
+- Editing <textarea> updates rectangles
+- Selecting box rectangle sets focus in <textarea>
+- Moving cursor in <textarea> sets selected box
+- Selected box scrolls into view
+- Typing a letter while a box is selected changes it & moves forward.
+- n-way split of selected box.
+
+Optional:
+- Drag two files (.box and .jpg) onto page
