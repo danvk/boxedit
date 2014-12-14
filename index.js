@@ -213,7 +213,7 @@ var ImageView = React.createClass({
 
     if (e.altKey || e.ctrlKey || e.metaKey) return;
     // TODO: use a blacklist instead of a whitelist?
-    if (/^[-0-9a-zA-Z()\[\]{}!@#$%^&*=~?.,;'"\/\\]$/.exec(c)) {
+    if (/^[-0-9a-zA-Z()\[\]{}!@#$%^&*=~?.,:;'"\/\\]$/.exec(c)) {
       e.preventDefault();
       this.props.onChangeLetter(this.props.selectedBoxIndex, c);
     }
