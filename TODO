@@ -1,6 +1,11 @@
-- Typing a letter while a box is selected changes it & moves forward.
 - n-way split of selected box.
 
 Optional:
 - Drag two files (.box and .jpg) onto page
 - Animate scrolling focused box into view
+- A better way to save the changes
+- Indicate which boxes have been changed
+- Store lists Box objects, rather than constantly packing/unpacking
+- Scroll <textarea> selection into view
+- Show instructions in place of image on initial load.
+- Don't focus <textarea> when clicking box.

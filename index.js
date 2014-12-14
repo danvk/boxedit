@@ -40,6 +40,12 @@ var Root = React.createClass({
   handleChangeSelection: function(selectedBoxIndex) {
     this.setState({selectedBoxIndex});
   },
+  handleChangeLetter: function(lineIndex, newLetter) {
+    this.setState({
+      boxData: changeLetter(this.state.boxData, lineIndex, newLetter),
+      selectedBoxIndex: lineIndex + 1
+    });
+  },
   render: function() {
     return (
       <div>
@@ -51,6 +57,7 @@ var Root = React.createClass({
                   onChangeSelection={this.handleChangeSelection}
                   {...this.state} />
         <ImageView onChangeSelection={this.handleChangeSelection}
+                   onChangeLetter={this.handleChangeLetter}
                    {...this.state} />
       </div>
     );
@@ -120,33 +127,19 @@ var TextView = React.createClass({
       this.props.onChangeSelection(lineIndex);
     }
   },
-  countLines: function(text, position) {
-    var count = 0;
-    for (var i = 0; i < position; i++) {
-      if (text.charAt(i) == '\n') count++;
-    }
-    return count;
-  },
-  startOfLinePosition: function(text, lineNumber) {
-    var count = 0;
-    for (var i = 0; i < text.length; i++) {
-      if (text.charAt(i) == '\n') {
-        count++;
-        if (count >= lineNumber) return i + 1;
-      }
-    }
-    return i;
-  },
   currentlySelectedLineIndex: function() {
     var selStart = this.refs.textbox.getDOMNode().selectionStart;
-    return this.countLines(this.props.boxData, selStart);
+    return countLines(this.props.boxData, selStart);
   },
   componentDidUpdate: function() {
     var lineIndex = this.currentlySelectedLineIndex();
     if (lineIndex != this.props.selectedBoxIndex) {
-      var tb = this.refs.textbox.getDOMNode();
-      tb.selectionStart = this.startOfLinePosition(this.props.boxData, this.props.selectedBoxIndex);
-      tb.selectionEnd = this.startOfLinePosition(this.props.boxData, this.props.selectedBoxIndex + 1) - 1;
+      var tb = this.refs.textbox.getDOMNode(),
+          text = this.props.boxData,
+          idx = this.props.selectedBoxIndex;
+
+      tb.selectionStart = startOfLinePosition(text, idx);
+      tb.selectionEnd = startOfLinePosition(text, idx + 1) - 1;
     }
   },
   render: function() {
@@ -190,6 +183,15 @@ var ImageView = React.createClass({
   handleBoxClick: function(index) {
     this.props.onChangeSelection(index);
   },
+  handleKeyPress: function(e) {
+    if (document.activeElement != document.body) return;
+    var c = String.fromCharCode(e.charCode);
+    // TODO: use a blacklist instead of a whitelist?
+    if (/^[-0-9a-zA-Z()\[\]{}!@#$%^&*=~?.,;'"\/\\]$/.exec(c)) {
+      e.preventDefault();
+      this.props.onChangeLetter(this.props.selectedBoxIndex, c);
+    }
+  },
   componentDidUpdate: function() {
     if (this.props.selectedBoxIndex === null) return;
 
@@ -198,6 +200,9 @@ var ImageView = React.createClass({
     if (box) {
       box.scrollIntoViewIfNeeded();   // <-- cross-platform?
     }
+  },
+  componentDidMount: function() {
+    document.addEventListener('keypress', this.handleKeyPress);
   },
   render: function() {
     var boxesImageCoords = this.makeBoxes(this.props.boxData),
@@ -235,7 +240,10 @@ var Box = React.createClass({
     });
     var letter = this.props.lettersVisible ? this.props.letter : '';
     return (
-      <div style={style} className={classes} onClick={this.handleClick}>
+      <div style={style}
+           className={classes}
+           onClick={this.handleClick}
+           onKeyPress={this.handleKey}>
         {letter}
       </div>
     );
