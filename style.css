@@ -1,0 +1,36 @@
+.drop-zone {
+  width: 100px;
+  height: 20px;
+  border: 1px dashed #777;
+  display: inline-block;
+}
+
+.receiving-drag {
+  background-color: hotpink;
+}
+
+.upload {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 24px;
+  border-bottom: 1px solid #ccc;
+  padding: 5px;
+}
+
+.text-view {
+  position: fixed;
+  left: 0;
+  width: 250px;
+  top: 42px;
+  bottom: 0;
+  padding: 5px;
+}
+
+.text-view textarea {
+  width: 100%;
+  height: 100%;
+  font-family: Courier, monospace;
+  font-size: 16px;
+}

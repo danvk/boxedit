@@ -20,5 +20,10 @@
   "bugs": {
     "url": "https://github.com/danvk/boxedit/issues"
   },
-  "homepage": "https://github.com/danvk/boxedit"
+  "homepage": "https://github.com/danvk/boxedit",
+  "dependencies": {
+    "bootstrap": "^3.3.1",
+    "react": "^0.12.1",
+    "reqwest": "^1.1.5"
+  }
 }
