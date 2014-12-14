@@ -5,6 +5,15 @@ function render(el) {
 }
 
 var Root = React.createClass({
+  /*
+  stateTypes: {
+    imageDataUri: React.PropTypes.string,
+    boxData: React.PropTypes.string,
+    imageHeight: React.PropTypes.number,
+    lettersVisible: React.PropTypes.bool,
+    selectedBoxIndex: React.PropTypes.number
+  },
+  */
   handleImage: function(imageDataUri) {
     var im = new Image();
     im.src = imageDataUri;
@@ -19,12 +28,17 @@ var Root = React.createClass({
   getInitialState: function() {
     return {
       boxData: '',
+      // 1x1 transparent gif
       imageDataUri: 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==',
-      lettersVisible: true
+      lettersVisible: true,
+      selectedBox: null
     }
   },
   handleLettersVisibleChanged: function(visible) {
     this.setState({lettersVisible: visible});
+  },
+  handleChangeSelection: function(selectedBoxIndex) {
+    this.setState({selectedBoxIndex});
   },
   render: function() {
     return (
@@ -34,6 +48,7 @@ var Root = React.createClass({
                     onChangeBox={this.handleBox}
                     onChangeLettersVisible={this.handleLettersVisibleChanged} />
         <TextView onChangeBox={this.handleBox}
+                  onChangeSelection={this.handleChangeSelection}
                   {...this.state} />
         <ImageView {...this.state} />
       </div>
@@ -98,11 +113,27 @@ var TextView = React.createClass({
   handleChange: function() {
     this.props.onChangeBox(this.refs.textbox.getDOMNode().value);
   },
+  checkSelection: function() {
+    var selStart = this.refs.textbox.getDOMNode().selectionStart;
+    var lineIndex = this.countLines(this.props.boxData, selStart);
+    if (lineIndex != this.props.selectedBoxIndex) {
+      this.props.onChangeSelection(lineIndex);
+    }
+  },
+  countLines: function(text, position) {
+    var count = 0;
+    for (var i = 0; i < position; i++) {
+      if (text.charAt(i) == '\n') count++;
+    }
+    return count;
+  },
   render: function() {
     return (
       <div className='text-view'>
-        <textarea ref="textbox"
+        <textarea ref='textbox'
                   value={this.props.boxData}
+                  onClick={this.checkSelection}
+                  onKeyUp={this.checkSelection}
                   onChange={this.handleChange} />
       </div>
     );
@@ -137,7 +168,10 @@ var ImageView = React.createClass({
   render: function() {
     var boxesImageCoords = this.makeBoxes(this.props.boxData),
         boxesScreenCoords = this.transform(boxesImageCoords),
-        boxes = boxesScreenCoords.map((data, i) => <Box key={i} {...this.props} {...data} />);
+        boxes = boxesScreenCoords.map(
+            (data, i) => <Box key={i}
+                              isSelected={i === this.props.selectedBoxIndex}
+                              {...this.props} {...data} />);
     return (
       <div className='image-viewer'>
         <img src={this.props.imageDataUri} />
@@ -156,7 +190,11 @@ var Box = React.createClass({
       width: (this.props.right - this.props.left) + 'px',
       height: (this.props.bottom - this.props.top) + 'px'
     };
+    var classes = React.addons.classSet({
+      'box': true,
+      'selected': this.props.isSelected
+    });
     var letter = this.props.lettersVisible ? this.props.letter : '';
-    return <div style={style} className='box'>{letter}</div>;
+    return <div style={style} className={classes}>{letter}</div>;
   }
 });

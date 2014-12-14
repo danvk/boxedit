@@ -50,3 +50,6 @@
   color: red;
   font-size: 32px;
 }
+.box.selected {
+  border: 2px solid red;
+}
