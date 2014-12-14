@@ -19,15 +19,20 @@ var Root = React.createClass({
   getInitialState: function() {
     return {
       boxData: '',
-      imageDataUri: 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=='
+      imageDataUri: 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==',
+      lettersVisible: true
     }
+  },
+  handleLettersVisibleChanged: function(visible) {
+    this.setState({lettersVisible: visible});
   },
   render: function() {
     return (
       <div>
         <FileUpload {...this.state}
                     onChangeImage={this.handleImage}
-                    onChangeBox={this.handleBox} />
+                    onChangeBox={this.handleBox}
+                    onChangeLettersVisible={this.handleLettersVisibleChanged} />
         <TextView onChangeBox={this.handleBox}
                   {...this.state} />
         <ImageView {...this.state} />
@@ -54,11 +59,16 @@ var FileUpload = React.createClass({
 
     reader.readAsDataURL(file);
   },
+  handleLettersVisibleChanged: function() {
+    this.props.onChangeLettersVisible(this.refs.check.getDOMNode().checked);
+  },
   render: function() {
     return (
       <div className='upload'>
         Drag a .box file here: <DropZone onDrop={this.handleNewBox} />
         And an image file here: <DropZone onDrop={this.handleNewImage} />
+        <input ref="check" type="checkbox" checked={this.props.lettersVisible} onChange={this.handleLettersVisibleChanged} id="letters-visible" /><label htmlFor="letters-visible">
+          Show letters</label>
       </div>
     );
   }
@@ -85,10 +95,14 @@ var DropZone = React.createClass({
 });
 
 var TextView = React.createClass({
+  handleChange: function() {
+  },
   render: function() {
     return (
       <div className='text-view'>
-        <textarea value={this.props.boxData} />
+        <textarea ref="textbox"
+                  value={this.props.boxData}
+                  onChange={this.handleChange} />
       </div>
     );
   }
@@ -122,7 +136,7 @@ var ImageView = React.createClass({
   render: function() {
     var boxesImageCoords = this.makeBoxes(this.props.boxData),
         boxesScreenCoords = this.transform(boxesImageCoords),
-        boxes = boxesScreenCoords.map((data, i) => <Box key={i} {...data} />);
+        boxes = boxesScreenCoords.map((data, i) => <Box key={i} {...this.props} {...data} />);
     return (
       <div className='image-viewer'>
         <img src={this.props.imageDataUri} />
@@ -141,6 +155,7 @@ var Box = React.createClass({
       width: (this.props.right - this.props.left) + 'px',
       height: (this.props.bottom - this.props.top) + 'px'
     };
-    return <div style={style} className='box'>{this.props.letter}</div>;
+    var letter = this.props.lettersVisible ? this.props.letter : '';
+    return <div style={style} className='box'>{letter}</div>;
   }
 });
