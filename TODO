@@ -1,7 +1,6 @@
-- Selecting box rectangle sets focus in <textarea>
-- Selected box scrolls into view
 - Typing a letter while a box is selected changes it & moves forward.
 - n-way split of selected box.
 
 Optional:
 - Drag two files (.box and .jpg) onto page
+- Animate scrolling focused box into view

@@ -50,7 +50,8 @@ var Root = React.createClass({
         <TextView onChangeBox={this.handleBox}
                   onChangeSelection={this.handleChangeSelection}
                   {...this.state} />
-        <ImageView {...this.state} />
+        <ImageView onChangeSelection={this.handleChangeSelection}
+                   {...this.state} />
       </div>
     );
   }
@@ -114,8 +115,7 @@ var TextView = React.createClass({
     this.props.onChangeBox(this.refs.textbox.getDOMNode().value);
   },
   checkSelection: function() {
-    var selStart = this.refs.textbox.getDOMNode().selectionStart;
-    var lineIndex = this.countLines(this.props.boxData, selStart);
+    var lineIndex = this.currentlySelectedLineIndex();
     if (lineIndex != this.props.selectedBoxIndex) {
       this.props.onChangeSelection(lineIndex);
     }
@@ -126,6 +126,28 @@ var TextView = React.createClass({
       if (text.charAt(i) == '\n') count++;
     }
     return count;
+  },
+  startOfLinePosition: function(text, lineNumber) {
+    var count = 0;
+    for (var i = 0; i < text.length; i++) {
+      if (text.charAt(i) == '\n') {
+        count++;
+        if (count >= lineNumber) return i + 1;
+      }
+    }
+    return i;
+  },
+  currentlySelectedLineIndex: function() {
+    var selStart = this.refs.textbox.getDOMNode().selectionStart;
+    return this.countLines(this.props.boxData, selStart);
+  },
+  componentDidUpdate: function() {
+    var lineIndex = this.currentlySelectedLineIndex();
+    if (lineIndex != this.props.selectedBoxIndex) {
+      var tb = this.refs.textbox.getDOMNode();
+      tb.selectionStart = this.startOfLinePosition(this.props.boxData, this.props.selectedBoxIndex);
+      tb.selectionEnd = this.startOfLinePosition(this.props.boxData, this.props.selectedBoxIndex + 1) - 1;
+    }
   },
   render: function() {
     return (
@@ -165,12 +187,26 @@ var ImageView = React.createClass({
       bottom: height - box.top
     }));
   },
+  handleBoxClick: function(index) {
+    this.props.onChangeSelection(index);
+  },
+  componentDidUpdate: function() {
+    if (this.props.selectedBoxIndex === null) return;
+
+    var div = this.getDOMNode(),
+        box = div.querySelectorAll('.box')[this.props.selectedBoxIndex];
+    if (box) {
+      box.scrollIntoViewIfNeeded();   // <-- cross-platform?
+    }
+  },
   render: function() {
     var boxesImageCoords = this.makeBoxes(this.props.boxData),
         boxesScreenCoords = this.transform(boxesImageCoords),
         boxes = boxesScreenCoords.map(
             (data, i) => <Box key={i}
+                              index={i}
                               isSelected={i === this.props.selectedBoxIndex}
+                              onClick={this.handleBoxClick}
                               {...this.props} {...data} />);
     return (
       <div className='image-viewer'>
@@ -182,6 +218,9 @@ var ImageView = React.createClass({
 });
 
 var Box = React.createClass({
+  handleClick: function() {
+    this.props.onClick(this.props.index);
+  },
   render: function() {
     var style = {
       position: 'absolute',
@@ -195,6 +234,10 @@ var Box = React.createClass({
       'selected': this.props.isSelected
     });
     var letter = this.props.lettersVisible ? this.props.letter : '';
-    return <div style={style} className={classes}>{letter}</div>;
+    return (
+      <div style={style} className={classes} onClick={this.handleClick}>
+        {letter}
+      </div>
+    );
   }
 });
