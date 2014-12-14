@@ -66,6 +66,8 @@ var Root = React.createClass({
         <ImageView onChangeSelection={this.handleChangeSelection}
                    onChangeLetter={this.handleChangeLetter}
                    onSplit={this.handleSplit}
+                   onChangeImage={this.handleImage}
+                   onChangeBox={this.handleBox}
                    {...this.state} />
       </div>
     );
@@ -182,6 +184,7 @@ var TextView = React.createClass({
 });
 
 var ImageView = React.createClass({
+  getInitialState: () => ({dragHover: false}),
   makeBoxes: function(text) {
     if (!text || text.length == 0) return [];
     return text.split('\n').map(parseBoxLine);
@@ -227,6 +230,51 @@ var ImageView = React.createClass({
   componentDidMount: function() {
     document.addEventListener('keypress', this.handleKeyPress);
   },
+
+  // https://github.com/Khan/react-components/blob/master/js/drag-target.jsx
+  handleDrop: function(e) {
+    e.stopPropagation();
+    e.preventDefault();
+    this.setState({ dragHover: false });
+    this.handleFileDrop(e.nativeEvent.dataTransfer.files);
+  },
+  handleDragEnd: function() {
+    this.setState({ dragHover: false });
+  },
+  handleDragOver: function(e) {
+    e.preventDefault();
+  },
+  handleDragLeave: function() {
+    this.setState({dragHover: false});
+  },
+  handleDragEnter: function(e) {
+    this.setState({dragHover: true});
+  },
+  handleFileDrop: function(files) {
+    var typedFiles = {
+      image: null,
+      box: null
+    };
+    [].forEach.call(files, f => {
+      if (f.type.slice(0, 6) == 'image/') {
+        typedFiles.image = f;
+      } else if (f.name.slice(-4) == '.box') {
+        typedFiles.box = f;
+      }
+    });
+    // TODO: lots of duplication with <FileUpload> here.
+    if (typedFiles.image) {
+      var reader = new FileReader();
+      reader.onload = e => { this.props.onChangeImage(e.target.result); };
+      reader.readAsDataURL(typedFiles.image);
+    }
+    if (typedFiles.box) {
+      var reader = new FileReader();
+      reader.onload = e => { this.props.onChangeBox(e.target.result); };
+      reader.readAsText(typedFiles.box);
+    }
+  },
+
   render: function() {
     var boxesImageCoords = this.makeBoxes(this.props.boxData),
         boxesScreenCoords = this.transform(boxesImageCoords),
@@ -236,8 +284,17 @@ var ImageView = React.createClass({
                               isSelected={i === this.props.selectedBoxIndex}
                               onClick={this.handleBoxClick}
                               {...this.props} {...data} />);
+    var classes = React.addons.classSet({
+      'image-viewer': true,
+      'drag-hover': this.state.dragHover
+    });
     return (
-      <div className='image-viewer'>
+      <div className={classes}
+           onDragEnd={this.handleDragEng}
+           onDragOver={this.handleDragOver}
+           onDragLeave={this.handleDragLeave}
+           onDragEnter={this.handleDragEnter}
+           onDrop={this.handleDrop}>
         <img src={this.props.imageDataUri} />
         {boxes}
       </div>

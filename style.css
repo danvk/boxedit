@@ -44,6 +44,9 @@
   overflow-x: auto;
   overflow-y: auto;
 }
+.image-viewer.drag-hover {
+  border: 4px dashed gray;
+}
 
 .box {
   border: 1px solid blue;
