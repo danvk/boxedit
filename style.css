@@ -34,3 +34,17 @@
   font-family: Courier, monospace;
   font-size: 16px;
 }
+
+.image-viewer {
+  position: fixed;
+  top: 42px;
+  left: 260px;
+  right: 0;
+  bottom: 0;
+  overflow-x: auto;
+  overflow-y: auto;
+}
+
+.box {
+  border: 1px solid blue;
+}

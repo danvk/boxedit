@@ -1,16 +1,26 @@
 function render(el) {
   var component = <Root />;
-  React.render(component, el);
-  return component;
+  return React.render(component, el);
+  // return component;
 }
 
 var Root = React.createClass({
   handleImage: function(imageDataUri) {
-    this.setState({imageDataUri});
+    var im = new Image();
+    im.src = imageDataUri;
+    this.setState({
+      imageDataUri,
+      imageHeight: im.height
+    });
   },
   handleBox: function(boxData) {
     this.setState({boxData});
-    console.log(boxData);
+  },
+  getInitialState: function() {
+    return {
+      boxData: '',
+      imageDataUri: 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=='
+    }
   },
   render: function() {
     return (
@@ -37,6 +47,12 @@ var FileUpload = React.createClass({
     reader.readAsText(file);
   },
   handleNewImage: function(file) {
+    var reader = new FileReader();
+    reader.onload = e => {
+      this.props.onChangeImage(e.target.result);
+    };
+
+    reader.readAsDataURL(file);
   },
   render: function() {
     return (
@@ -79,7 +95,52 @@ var TextView = React.createClass({
 });
 
 var ImageView = React.createClass({
+  makeBoxes: function(text) {
+    if (!text || text.length == 0) return [];
+    return this.props.boxData.split('\n').map(line => {
+      var parts = line.split(' ');
+      return {
+        letter: parts[0],
+        left: parseInt(parts[1], 0),
+        top: parseInt(parts[2], 0),
+        right: parseInt(parts[3], 0),
+        bottom: parseInt(parts[4], 0)
+      }
+    });
+  },
+  transform: function(boxesImageCoords) {
+    var height = this.props.imageHeight ||
+                 Math.max.apply(null, boxesImageCoords.map(c => c.top));
+    return boxesImageCoords.map(box => ({
+      letter: box.letter,
+      left: box.left,
+      right: box.right,
+      top: height - box.bottom,
+      bottom: height - box.top
+    }));
+  },
   render: function() {
-    return null;
+    var boxesImageCoords = this.makeBoxes(this.props.boxData),
+        boxesScreenCoords = this.transform(boxesImageCoords),
+        boxes = boxesScreenCoords.map((data, i) => <Box key={i} {...data} />);
+    return (
+      <div className='image-viewer'>
+        <img src={this.props.imageDataUri} />
+        {boxes}
+      </div>
+    );
+  }
+});
+
+var Box = React.createClass({
+  render: function() {
+    var style = {
+      position: 'absolute',
+      left: this.props.left + 'px',
+      top: this.props.top + 'px',
+      width: (this.props.right - this.props.left) + 'px',
+      height: (this.props.bottom - this.props.top) + 'px'
+    };
+    return <div style={style} className='box'>{this.props.letter}</div>;
   }
 });
