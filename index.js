@@ -65,6 +65,7 @@ var Root = React.createClass({
                   {...this.state} />
         <ImageView onChangeSelection={this.handleChangeSelection}
                    onChangeLetter={this.handleChangeLetter}
+                   onSplit={this.handleSplit}
                    {...this.state} />
       </div>
     );
@@ -161,8 +162,10 @@ var TextView = React.createClass({
           text = this.props.boxData,
           idx = this.props.selectedBoxIndex;
 
+      var oldActive = document.activeElement;
       tb.selectionStart = startOfLinePosition(text, idx);
       tb.selectionEnd = startOfLinePosition(text, idx + 1) - 1;
+      oldActive.focus();
     }
   },
   render: function() {
@@ -200,6 +203,12 @@ var ImageView = React.createClass({
   handleKeyPress: function(e) {
     if (document.activeElement != document.body) return;
     var c = String.fromCharCode(e.charCode);
+    if (e.altKey && /^[0-9]$/.match(c)) {
+      e.preventDefault();
+      this.props.onSplit(Number(c));
+    }
+
+    if (e.altKey || e.ctrlKey || e.metaKey) return;
     // TODO: use a blacklist instead of a whitelist?
     if (/^[-0-9a-zA-Z()\[\]{}!@#$%^&*=~?.,;'"\/\\]$/.exec(c)) {
       e.preventDefault();

@@ -6,4 +6,8 @@ Optional:
 - Store lists Box objects, rather than constantly packing/unpacking
 - Scroll <textarea> selection into view
 - Show instructions in place of image on initial load.
-- Don't focus <textarea> when clicking box.
+- The split select box should immediately lose focus. (type after split = disaster)
+- May have some off-by-one issues in where box borders are displayed.
+- Add a keyboard shortcut for split N ways (alt-2 = split 2)
+- Add a delete button
+- Bug where all letters go to the bottom in Safari (NaN issue?)
