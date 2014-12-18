@@ -39,11 +39,15 @@ var Root = React.createClass({
   },
   handleImage: function(imageDataUri) {
     var im = new Image();
+    im.onload = () => {
+      // image height is only available in onload in FF/Safari
+      console.log(im.height);
+      this.setState({
+        imageDataUri,
+        imageHeight: im.height
+      });
+    };
     im.src = imageDataUri;
-    this.setState({
-      imageDataUri,
-      imageHeight: im.height
-    });
   },
   handleBox: function(boxData) {
     this.setState({boxData});
@@ -221,10 +225,10 @@ var ImageView = React.createClass({
   handleKeyPress: function(e) {
     if (document.activeElement != document.body) return;
     var c = String.fromCharCode(e.charCode);
-    if (e.altKey && /^[0-9]$/.match(c)) {
-      e.preventDefault();
-      this.props.onSplit(Number(c));
-    }
+    // if (e.altKey && /^[0-9]$/.match(c)) {
+    //   e.preventDefault();
+    //   this.props.onSplit(Number(c));
+    // }
 
     if (e.altKey || e.ctrlKey || e.metaKey) return;
     // TODO: use a blacklist instead of a whitelist?
