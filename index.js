@@ -1,6 +1,20 @@
-function render(el) {
-  var component = <Root />;
-  return React.render(component, el);
+function render(el, isDemo) {
+  var props = {};
+  if (isDemo) {
+    props.initialBoxData = boxData();
+    // make sure the image is cached
+    var im = new Image();
+    im.onload = function() {
+      props.initialImageUri = '700045bu.jpg';
+      props.initialImageHeight = im.height;
+      var component = <Root {...props} />;
+      React.render(component, el);
+    };
+    im.src = '700045bu.jpg';
+  } else {
+    var component = <Root />;
+    return React.render(component, el);
+  }
 }
 
 var Root = React.createClass({
@@ -15,9 +29,10 @@ var Root = React.createClass({
   */
   getInitialState: function() {
     return {
-      boxData: '',
+      boxData: this.props.initialBoxData || '',
       // 1x1 transparent gif
-      imageDataUri: 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==',
+      imageDataUri: this.props.initialImageUri || 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==',
+      imageHeight: this.props.initialImageHeight || null,
       lettersVisible: true,
       selectedBox: null
     }
@@ -244,7 +259,7 @@ var ImageView = React.createClass({
   handleDragOver: function(e) {
     e.preventDefault();
   },
-  handleDragLeave: function() {
+  handleDragLeave: function(e) {
     this.setState({dragHover: false});
   },
   handleDragEnter: function(e) {
@@ -288,6 +303,7 @@ var ImageView = React.createClass({
       'image-viewer': true,
       'drag-hover': this.state.dragHover
     });
+    var showHelp = !(this.props.boxData || this.props.imageHeight > 1);
     return (
       <div className={classes}
            onDragEnd={this.handleDragEng}
@@ -297,6 +313,7 @@ var ImageView = React.createClass({
            onDrop={this.handleDrop}>
         <img src={this.props.imageDataUri} />
         {boxes}
+        {showHelp ? <Help /> : null}
       </div>
     );
   }
@@ -325,6 +342,18 @@ var Box = React.createClass({
            onClick={this.handleClick}
            onKeyPress={this.handleKey}>
         {letter}
+      </div>
+    );
+  }
+});
+
+var Help = React.createClass({
+  render: function() {
+    return (
+      <div className="help">
+        <p>To get going, drag a box file and an image onto this page:</p>
+        <img width="936" height="488" src="https://raw.githubusercontent.com/danvk/boxedit/master/screenshots/drag-and-drop.png" />
+        <p>Read more about how to use boxedit <a href="https://github.com/danvk/boxedit/blob/master/README.md">on GitHub</a>, or check out a pre-loaded <a href="demo.html">demo</a>.</p>
       </div>
     );
   }

@@ -20,6 +20,10 @@ Tesseract. boxedit helps you do that.
 ![](/screenshots/screenshot.png "boxedit in action")
 
 ##### Usage
+=======
+**[Try a Live Demo!](http://www.danvk.org/boxedit/)**
+
+Usage:
 
   1. Open `index.html` in your favorite browser.
   2. Drag a `.box` file and a corresponding image file onto the page. You can
@@ -33,3 +37,23 @@ Tesseract. boxedit helps you do that.
        change the corresponding box data and advance the selection, allowing
        you to type the text that you see.
     3. Clicking a box and using the "split" menu to fix merged characters.
+
+
+#### Demo
+
+To update the demo:
+
+```
+mkdir demo
+jsx --harmony box.js > demo/box.js
+jsx --harmony index.js > demo/index.js
+cp style.css demo/
+cp index.html demo/
+cp index.html demo/demo.html
+cp node_modules/react/dist/react-with-addons.min.js demo/
+
+rm -rf ../danvk.github.io/boxedit
+cp -r demo ../danvk.github.io/boxedit
+```
+
+Then modify `demo.html` to set 'demo mode' (second param to render).

@@ -56,3 +56,9 @@
 .box.selected {
   border: 2px solid red;
 }
+
+.help {
+  margin: 20px;
+  font-size: large;
+  pointer-events: none;
+}
