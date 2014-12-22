@@ -39,6 +39,19 @@ Usage:
     3. Clicking a box and using the "split" menu to fix merged characters.
 
 
+### Local Development
+
+To get going, run:
+
+    git clone https://github.com/danvk/boxedit.git
+    cd boxedit
+    npm install
+    python -m SimpleHTTPServer
+
+and then open localhost:8000 in your browser of choice. You'll have a standard
+edit/save/reload iteration cycle.
+
+
 #### Demo
 
 To update the demo:
